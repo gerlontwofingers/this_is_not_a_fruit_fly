@@ -56,7 +56,7 @@ At the end of each chunk during execution, state: `Next: Chunk N — [brief desc
 | Done | # | Phase | Chunk | Recommended | Effort | Context | Branch | Commit message |
 |---|---|---|---|---|---|---|---|---|
 | [x] | 1 | 1 | pyproject.toml + package skeleton + extras | Sonnet 5 | medium | 1M | chore/superfly-scaffolding | chore(chunk-1): add pyproject.toml and src/superfly package skeleton |
-| [ ] | 2 | 1 | .gitignore + exceptions.py | Haiku 4.5 | n/a | 200K | chore/superfly-scaffolding | chore(chunk-2): add .gitignore and exception hierarchy |
+| [x] | 2 | 1 | .gitignore + exceptions.py | Haiku 4.5 | n/a | 200K | chore/superfly-scaffolding | chore(chunk-2): add .gitignore and exception hierarchy |
 | [ ] | — | 1 | PR: "chore: Phase 1 — repo & packaging scaffolding" | — | — | — | chore/superfly-scaffolding | — |
 | [ ] | 3 | 2 | datasources/base.py (ABC) | Sonnet 5 | medium | 1M | feat/superfly-datasources | feat(chunk-3): add DataSource abstract interface |
 | [ ] | 4 | 2 | datasources/flywire.py (real, auth) | Sonnet 5 | high | 1M | feat/superfly-datasources | feat(chunk-4): add FlyWireDataSource real data source |
