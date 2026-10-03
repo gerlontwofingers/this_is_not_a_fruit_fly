@@ -14,6 +14,7 @@ These are instructions that come from your persistent memory (`/memories/`), lay
 - At the **end of every chunk**, state: `Next: Chunk N — [brief description] — recommended: [model] — effort: [level] — context: [context window] — branch: [branch name] — commit: "[commit message]"`
 - After the **final chunk**: state `All chunks complete.`
 - **ALWAYS include the phase/chunk breakdown INSIDE the plan itself** — never present a plan without it.
+- **Checklist upkeep**: immediately after finishing a chunk's actual work (files created/edited and verified), tick that chunk's row off (`[ ]` → `[x]`) in the plan's Checklist table. When a phase's PR is actually opened/merged (confirmed by the user), tick off that phase's PR row too. If in ask mode when a chunk finishes, note that the checklist is stale and tick it off as soon as back in an editing-capable mode — don't let completed work sit unchecked.
 - **Single source of truth**: the plan file must also include a condensed tabular **Checklist** section (columns: Done, #, Phase, Chunk, Recommended, Effort, Context, Branch, Commit message, plus one row per phase for its PR) embedded directly in the same plan file, so it can be used as a dev checklist. Do **not** create a separate derived summary/checklist file elsewhere — one plan file holds both the detailed steps and the condensed checklist, to avoid drift between copies.
 
 ### Git workflow for chunked plans
