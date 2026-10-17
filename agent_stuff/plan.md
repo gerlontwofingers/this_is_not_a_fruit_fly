@@ -73,7 +73,7 @@ At the end of each chunk during execution, state: `Next: Chunk N — [brief desc
 | [x] | 4.4 | 4 | CI workflow | Haiku 4.5 | n/a | 200K | test/superfly-tests-ci | ci(chunk-4.4): add CI workflow |
 | [ ] | — | 4 | PR: "test: Phase 4 — tests & CI" | — | — | — | test/superfly-tests-ci | — |
 | [x] | 5.1 | 5 | docs/SETUP.md | Haiku 4.5 | n/a | 200K | docs/superfly-docs | docs(chunk-5.1): add CAVE auth setup docs |
-| [ ] | 5.2 | 5 | README.md update | Haiku 4.5 | n/a | 200K | docs/superfly-docs | docs(chunk-5.2): update README with install and quickstart |
+| [x] | 5.2 | 5 | README.md update | Haiku 4.5 | n/a | 200K | docs/superfly-docs | docs(chunk-5.2): update README with install and quickstart |
 | [ ] | — | 5 | PR: "docs: Phase 5 — docs" | — | — | — | docs/superfly-docs | — |
 
 **Relevant files**
