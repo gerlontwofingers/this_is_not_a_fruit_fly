@@ -62,7 +62,7 @@ At the end of each chunk during execution, state: `Next: Chunk N — [brief desc
 | [x] | — | 1 | PR: "chore: Phase 1 — repo & packaging scaffolding" | — | — | — | chore/superfly-scaffolding | — |
 | [x] | 2.1 | 2 | datasources/base.py (ABC) | Sonnet 5 | medium | 1M | feat/superfly-datasources | feat(chunk-2.1): add DataSource abstract interface |
 | [x] | 2.2 | 2 | datasources/flybywire.py (real, auth) | Sonnet 5 | high | 1M | feat/superfly-datasources | feat(chunk-2.2): add FlyWireDataSource real data source |
-| [ ] | 2.3 | 2 | datasources/mock.py | Haiku 4.5 | n/a | 200K | feat/superfly-datasources | feat(chunk-2.3): add MockDataSource for offline/test use |
+| [x] | 2.3 | 2 | datasources/mock.py | Haiku 4.5 | n/a | 200K | feat/superfly-datasources | feat(chunk-2.3): add MockDataSource for offline/test use |
 | [ ] | 2.4 | 2 | cache.py | Sonnet 5 | medium | 1M | feat/superfly-datasources | feat(chunk-2.4): add disk cache wrapper for FlyWireDataSource |
 | [ ] | — | 2 | PR: "feat: Phase 2 — data source abstraction" | — | — | — | feat/superfly-datasources | — |
 | [ ] | 3.1 | 3 | brain.py refactor (core API) | Opus 5 | high | 1M | refactor/superfly-flybrain-core | refactor(chunk-3.1): refactor FlyBrain onto injected DataSource |
