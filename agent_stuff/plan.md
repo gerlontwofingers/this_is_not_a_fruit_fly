@@ -65,7 +65,7 @@ At the end of each chunk during execution, state: `Next: Chunk N — [brief desc
 | [x] | 2.3 | 2 | datasources/mock.py | Haiku 4.5 | n/a | 200K | feat/superfly-datasources | feat(chunk-2.3): add MockDataSource for offline/test use |
 | [x] | 2.4 | 2 | cache.py | Sonnet 5 | medium | 1M | feat/superfly-datasources | feat(chunk-2.4): add disk cache wrapper for FlyWireDataSource |
 | [ ] | — | 2 | PR: "feat: Phase 2 — data source abstraction" | — | — | — | feat/superfly-datasources | — |
-| [ ] | 3.1 | 3 | brain.py refactor (core API) | Opus 5 | high | 1M | refactor/superfly-flybrain-core | refactor(chunk-3.1): refactor FlyBrain onto injected DataSource |
+| [x] | 3.1 | 3 | brain.py refactor (core API) | Opus 5 | high | 1M | refactor/superfly-flybrain-core | refactor(chunk-3.1): refactor FlyBrain onto injected DataSource |
 | [ ] | — | 3 | PR: "refactor: Phase 3 — core FlyBrain graph object" | — | — | — | refactor/superfly-flybrain-core | — |
 | [ ] | 4.1 | 4 | tests/conftest.py | Haiku 4.5 | n/a | 200K | test/superfly-tests-ci | test(chunk-4.1): add pytest fixtures for mock brain data |
 | [ ] | 4.2 | 4 | tests/test_brain.py | Sonnet 5 | medium | 1M | test/superfly-tests-ci | test(chunk-4.2): add FlyBrain load/export tests |
