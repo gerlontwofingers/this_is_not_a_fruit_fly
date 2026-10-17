@@ -24,60 +24,62 @@ Branch: `chore/superfly-scaffolding`
 
 Phase 2 — Data source abstraction (*depends on Phase 1*)
 Branch: `feat/superfly-datasources`
-- Chunk 3: `superfly/datasources/base.py` — `DataSource(ABC)` with `get_annotations(name, annotation_type)` and `get_adjacency(neuron_ids, min_synapses)` returning plain DataFrames. — recommended: Claude Sonnet 5 — effort: medium — context: 1M — branch: `feat/superfly-datasources` — commit: `feat(chunk-3): add DataSource abstract interface`
-- Chunk 4: `superfly/datasources/flywire.py` — `FlyWireDataSource` wraps `fafbseg.flywire.search_annotations` / `flywire.get_adjacency` + `CAVEclient`, raises `AuthenticationError` pointing at `docs/SETUP.md` on auth failure. — recommended: Claude Sonnet 5 — effort: high — context: 1M — branch: `feat/superfly-datasources` — commit: `feat(chunk-4): add FlyWireDataSource real data source`
-- Chunk 5: `superfly/datasources/mock.py` — `MockDataSource` reads small synthetic fixtures (in-memory DataFrames) for annotations/adjacency, for tests and offline dev/play. — recommended: Claude Haiku 4.5 — effort: n/a — context: 200K — branch: `feat/superfly-datasources` — commit: `feat(chunk-5): add MockDataSource for offline/test use`
-- Chunk 6: `superfly/cache.py` — disk-cache wrapper (hashlib-keyed pickle cache in `~/.cache/superfly/`) applied around `FlyWireDataSource` calls only (mock stays uncached). — recommended: Claude Sonnet 5 — effort: medium — context: 1M — branch: `feat/superfly-datasources` — commit: `feat(chunk-6): add disk cache wrapper for FlyWireDataSource`
-- PR (end of Phase 2): Title: `feat: Phase 2 — data source abstraction`. Body: summarizes Chunks 3–6 — introduces the `DataSource` interface, a real `FlyWireDataSource` (fafbseg/CAVEclient-backed, with auth-error handling), an offline `MockDataSource` fixture-backed implementation, and a disk cache layer around the real source. Depends on Phase 1.
+- Chunk 2.1: `superfly/datasources/base.py` — `DataSource(ABC)` with `get_annotations(name, annotation_type)` and `get_adjacency(neuron_ids, min_synapses)` returning plain DataFrames. — recommended: Claude Sonnet 5 — effort: medium — context: 1M — branch: `feat/superfly-datasources` — commit: `feat(chunk-2.1): add DataSource abstract interface`
+- Chunk 2.2: `superfly/datasources/flybywire.py` — `FlyWireDataSource` wraps `fafbseg.flywire.search_annotations` / `flywire.get_adjacency` + `CAVEclient`, raises `AuthenticationError` pointing at `docs/SETUP.md` on auth failure. — recommended: Claude Sonnet 5 — effort: high — context: 1M — branch: `feat/superfly-datasources` — commit: `feat(chunk-2.2): add FlyWireDataSource real data source`
+- Chunk 2.3: `superfly/datasources/mock.py` — `MockDataSource` reads small synthetic fixtures (in-memory DataFrames) for annotations/adjacency, for tests and offline dev/play. — recommended: Claude Haiku 4.5 — effort: n/a — context: 200K — branch: `feat/superfly-datasources` — commit: `feat(chunk-2.3): add MockDataSource for offline/test use`
+- Chunk 2.4: `superfly/cache.py` — disk-cache wrapper (hashlib-keyed pickle cache in `~/.cache/superfly/`) applied around `FlyWireDataSource` calls only (mock stays uncached). — recommended: Claude Sonnet 5 — effort: medium — context: 1M — branch: `feat/superfly-datasources` — commit: `feat(chunk-2.4): add disk cache wrapper for FlyWireDataSource`
+- PR (end of Phase 2): Title: `feat: Phase 2 — data source abstraction`. Body: summarizes Chunks 2.1–2.4 — introduces the `DataSource` interface, a real `FlyWireDataSource` (fafbseg/CAVEclient-backed, with auth-error handling), an offline `MockDataSource` fixture-backed implementation, and a disk cache layer around the real source. Depends on Phase 1.
 
 Phase 3 — Core `FlyBrain` graph object (*depends on Phase 2*)
 Branch: `refactor/superfly-flybrain-core`
-- Chunk 7: `superfly/brain.py` — refactor the draft class in one pass: constructor takes `datasource: DataSource | None = None` (defaults to cached `FlyWireDataSource`); collapse `load_region`/`load_cell_type`/`load_superclass` into a shared private `_load(query, annotation_type, min_synapses)`; extract `_build_adjacency(neuron_ids, adj_df)` from the draft's `_fetch_connectivity`, raising `EmptyGraphError` on no neurons found; keep export methods `to_pyg`/`to_networkx`/`to_numpy`/`mask` with guarded optional imports (clear ImportError pointing at extras install). — recommended: Claude Opus 5 — effort: high — context: 1M — branch: `refactor/superfly-flybrain-core` — commit: `refactor(chunk-7): refactor FlyBrain onto injected DataSource`
-- PR (end of Phase 3): Title: `refactor: Phase 3 — core FlyBrain graph object`. Body: summarizes Chunk 7 — refactors the draft `FlyBrain` class to depend on the injected `DataSource` abstraction, consolidates the three `load_*` methods, extracts adjacency-building into a helper, and guards optional torch/networkx exports. Depends on Phase 2.
+- Chunk 3.1: `superfly/brain.py` — refactor the draft class in one pass: constructor takes `datasource: DataSource | None = None` (defaults to cached `FlyWireDataSource`); collapse `load_region`/`load_cell_type`/`load_superclass` into a shared private `_load(query, annotation_type, min_synapses)`; extract `_build_adjacency(neuron_ids, adj_df)` from the draft's `_fetch_connectivity`, raising `EmptyGraphError` on no neurons found; keep export methods `to_pyg`/`to_networkx`/`to_numpy`/`mask` with guarded optional imports (clear ImportError pointing at extras install). — recommended: Claude Opus 5 — effort: high — context: 1M — branch: `refactor/superfly-flybrain-core` — commit: `refactor(chunk-3.1): refactor FlyBrain onto injected DataSource`
+- PR (end of Phase 3): Title: `refactor: Phase 3 — core FlyBrain graph object`. Body: summarizes Chunk 3.1 — refactors the draft `FlyBrain` class to depend on the injected `DataSource` abstraction, consolidates the three `load_*` methods, extracts adjacency-building into a helper, and guards optional torch/networkx exports. Depends on Phase 2.
 
 Phase 4 — Tests & CI (*depends on Phase 3*, parallel with Phase 5)
 Branch: `test/superfly-tests-ci`
-- Chunk 8: `tests/conftest.py` — fixtures: synthetic annotations DataFrame (~5-10 neurons), synthetic pre/post/syn_count adjacency DataFrame, a `MockDataSource` instance built from them. — recommended: Claude Haiku 4.5 — effort: n/a — context: 200K — branch: `test/superfly-tests-ci` — commit: `test(chunk-8): add pytest fixtures for mock brain data`
-- Chunk 9: `tests/test_brain.py` — load via mock, assert adjacency shape/values, test each export method (`to_numpy`, `to_networkx`; guard `to_pyg` if torch absent), test `mask`. — recommended: Claude Sonnet 5 — effort: medium — context: 1M — branch: `test/superfly-tests-ci` — commit: `test(chunk-9): add FlyBrain load/export tests`
-- Chunk 10: `tests/test_datasources.py` (`MockDataSource` contract test; `FlyWireDataSource` auth-error path via monkeypatched failing client) + `tests/test_cache.py` (hit/miss behavior with a fake slow function). — recommended: Claude Sonnet 5 — effort: medium — context: 1M — branch: `test/superfly-tests-ci` — commit: `test(chunk-10): add datasource and cache tests`
-- Chunk 11: `.github/workflows/ci.yml` — `uv sync` + `pytest` on push/PR, Python 3.11+. — recommended: Claude Haiku 4.5 — effort: n/a — context: 200K — branch: `test/superfly-tests-ci` — commit: `ci(chunk-11): add CI workflow`
-- PR (end of Phase 4): Title: `test: Phase 4 — tests & CI`. Body: summarizes Chunks 8–11 — adds mock-data pytest fixtures, offline tests for `FlyBrain` loading/exports, datasource/cache contract tests, and a GitHub Actions workflow running pytest on push/PR. Depends on Phase 3; can merge in parallel with Phase 5.
+- Chunk 4.1: `tests/conftest.py` — fixtures: synthetic annotations DataFrame (~5-10 neurons), synthetic pre/post/syn_count adjacency DataFrame, a `MockDataSource` instance built from them. — recommended: Claude Haiku 4.5 — effort: n/a — context: 200K — branch: `test/superfly-tests-ci` — commit: `test(chunk-4.1): add pytest fixtures for mock brain data`
+- Chunk 4.2: `tests/test_brain.py` — load via mock, assert adjacency shape/values, test each export method (`to_numpy`, `to_networkx`; guard `to_pyg` if torch absent), test `mask`. — recommended: Claude Sonnet 5 — effort: medium — context: 1M — branch: `test/superfly-tests-ci` — commit: `test(chunk-4.2): add FlyBrain load/export tests`
+- Chunk 4.3: `tests/test_datasources.py` (`MockDataSource` contract test; `FlyWireDataSource` auth-error path via monkeypatched failing client) + `tests/test_cache.py` (hit/miss behavior with a fake slow function). — recommended: Claude Sonnet 5 — effort: medium — context: 1M — branch: `test/superfly-tests-ci` — commit: `test(chunk-4.3): add datasource and cache tests`
+- Chunk 4.4: `.github/workflows/ci.yml` — `uv sync` + `pytest` on push/PR, Python 3.11+. — recommended: Claude Haiku 4.5 — effort: n/a — context: 200K — branch: `test/superfly-tests-ci` — commit: `ci(chunk-4.4): add CI workflow`
+- PR (end of Phase 4): Title: `test: Phase 4 — tests & CI`. Body: summarizes Chunks 4.1–4.4 — adds mock-data pytest fixtures, offline tests for `FlyBrain` loading/exports, datasource/cache contract tests, and a GitHub Actions workflow running pytest on push/PR. Depends on Phase 3; can merge in parallel with Phase 5.
 
 Phase 5 — Docs (*parallel with Phase 4, depends on Phase 3 for accurate API*)
 Branch: `docs/superfly-docs`
-- Chunk 12: `docs/SETUP.md` — register for FlyWire/CAVE access (Google login via CAVE Framework auth portal), generate a token via `caveclient.CAVEclient().auth` setup flow, where it's stored, reminder never to commit it. — recommended: Claude Haiku 4.5 — effort: n/a — context: 200K — branch: `docs/superfly-docs` — commit: `docs(chunk-12): add CAVE auth setup docs`
-- Chunk 13: update root `README.md` — project description, install instructions (`pip install -e ".[flywire,torch,viz]"`), quickstart using `MockDataSource` for offline exploration. — recommended: Claude Haiku 4.5 — effort: n/a — context: 200K — branch: `docs/superfly-docs` — commit: `docs(chunk-13): update README with install and quickstart`
-- PR (end of Phase 5): Title: `docs: Phase 5 — docs`. Body: summarizes Chunks 12–13 — adds `docs/SETUP.md` for CAVE/FlyWire token setup and updates the root `README.md` with install instructions and an offline `MockDataSource` quickstart. Depends on Phase 3; can merge in parallel with Phase 4.
+- Chunk 5.1: `docs/SETUP.md` — register for FlyWire/CAVE access (Google login via CAVE Framework auth portal), generate a token via `caveclient.CAVEclient().auth` setup flow, where it's stored, reminder never to commit it. — recommended: Claude Haiku 4.5 — effort: n/a — context: 200K — branch: `docs/superfly-docs` — commit: `docs(chunk-5.1): add CAVE auth setup docs`
+- Chunk 5.2: update root `README.md` — project description, install instructions (`pip install -e ".[flywire,torch,viz]"`), quickstart using `MockDataSource` for offline exploration. — recommended: Claude Haiku 4.5 — effort: n/a — context: 200K — branch: `docs/superfly-docs` — commit: `docs(chunk-5.2): update README with install and quickstart`
+- PR (end of Phase 5): Title: `docs: Phase 5 — docs`. Body: summarizes Chunks 5.1–5.2 — adds `docs/SETUP.md` for CAVE/FlyWire token setup and updates the root `README.md` with install instructions and an offline `MockDataSource` quickstart. Depends on Phase 3; can merge in parallel with Phase 4.
 
-At the end of each chunk during execution, state: `Next: Chunk N — [brief description] — recommended: [model] — effort: [level] — context: [context window] — branch: [branch name] — commit: "[commit message]"`. After Chunk 13: `All chunks complete.`
+At the end of each chunk during execution, state: `Next: Chunk N — [brief description] — recommended: [model] — effort: [level] — context: [context window] — branch: [branch name] — commit: "[commit message]"`. After Chunk 5.2: `All chunks complete.`
+
+**Chunk numbering note**: chunks 1 and 2 (Phase 1) keep their original flat numbers because they're already committed/merged — commit messages are immutable history. Chunk 2.1 onward uses dotted `{phase}.{local-chunk}` numbering (resets per phase) per the updated standing instructions.
 
 **Checklist** (condensed tabular form — tick off as chunks complete; this table is the single source of truth alongside the detailed steps above)
 
 | Done | # | Phase | Chunk | Recommended | Effort | Context | Branch | Commit message |
 |---|---|---|---|---|---|---|---|---|
-| [ ] | 1 | 1 | pyproject.toml + package skeleton + extras | Sonnet 5 | medium | 1M | chore/superfly-scaffolding | chore(chunk-1): add pyproject.toml and src/superfly package skeleton |
-| [ ] | 2 | 1 | .gitignore + exceptions.py | Haiku 4.5 | n/a | 200K | chore/superfly-scaffolding | chore(chunk-2): add .gitignore and exception hierarchy |
-| [ ] | — | 1 | PR: "chore: Phase 1 — repo & packaging scaffolding" | — | — | — | chore/superfly-scaffolding | — |
-| [ ] | 3 | 2 | datasources/base.py (ABC) | Sonnet 5 | medium | 1M | feat/superfly-datasources | feat(chunk-3): add DataSource abstract interface |
-| [ ] | 4 | 2 | datasources/flywire.py (real, auth) | Sonnet 5 | high | 1M | feat/superfly-datasources | feat(chunk-4): add FlyWireDataSource real data source |
-| [ ] | 5 | 2 | datasources/mock.py | Haiku 4.5 | n/a | 200K | feat/superfly-datasources | feat(chunk-5): add MockDataSource for offline/test use |
-| [ ] | 6 | 2 | cache.py | Sonnet 5 | medium | 1M | feat/superfly-datasources | feat(chunk-6): add disk cache wrapper for FlyWireDataSource |
+| [x] | 1 | 1 | pyproject.toml + package skeleton + extras | Sonnet 5 | medium | 1M | chore/superfly-scaffolding | chore(chunk-1): add pyproject.toml and src/superfly package skeleton |
+| [x] | 2 | 1 | .gitignore + exceptions.py | Haiku 4.5 | n/a | 200K | chore/superfly-scaffolding | chore(chunk-2): add .gitignore and exception hierarchy |
+| [x] | — | 1 | PR: "chore: Phase 1 — repo & packaging scaffolding" | — | — | — | chore/superfly-scaffolding | — |
+| [x] | 2.1 | 2 | datasources/base.py (ABC) | Sonnet 5 | medium | 1M | feat/superfly-datasources | feat(chunk-2.1): add DataSource abstract interface |
+| [x] | 2.2 | 2 | datasources/flybywire.py (real, auth) | Sonnet 5 | high | 1M | feat/superfly-datasources | feat(chunk-2.2): add FlyWireDataSource real data source |
+| [x] | 2.3 | 2 | datasources/mock.py | Haiku 4.5 | n/a | 200K | feat/superfly-datasources | feat(chunk-2.3): add MockDataSource for offline/test use |
+| [ ] | 2.4 | 2 | cache.py | Sonnet 5 | medium | 1M | feat/superfly-datasources | feat(chunk-2.4): add disk cache wrapper for FlyWireDataSource |
 | [ ] | — | 2 | PR: "feat: Phase 2 — data source abstraction" | — | — | — | feat/superfly-datasources | — |
-| [ ] | 7 | 3 | brain.py refactor (core API) | Opus 5 | high | 1M | refactor/superfly-flybrain-core | refactor(chunk-7): refactor FlyBrain onto injected DataSource |
+| [ ] | 3.1 | 3 | brain.py refactor (core API) | Opus 5 | high | 1M | refactor/superfly-flybrain-core | refactor(chunk-3.1): refactor FlyBrain onto injected DataSource |
 | [ ] | — | 3 | PR: "refactor: Phase 3 — core FlyBrain graph object" | — | — | — | refactor/superfly-flybrain-core | — |
-| [ ] | 8 | 4 | tests/conftest.py | Haiku 4.5 | n/a | 200K | test/superfly-tests-ci | test(chunk-8): add pytest fixtures for mock brain data |
-| [ ] | 9 | 4 | tests/test_brain.py | Sonnet 5 | medium | 1M | test/superfly-tests-ci | test(chunk-9): add FlyBrain load/export tests |
-| [ ] | 10 | 4 | test_datasources.py + test_cache.py | Sonnet 5 | medium | 1M | test/superfly-tests-ci | test(chunk-10): add datasource and cache tests |
-| [ ] | 11 | 4 | CI workflow | Haiku 4.5 | n/a | 200K | test/superfly-tests-ci | ci(chunk-11): add CI workflow |
+| [ ] | 4.1 | 4 | tests/conftest.py | Haiku 4.5 | n/a | 200K | test/superfly-tests-ci | test(chunk-4.1): add pytest fixtures for mock brain data |
+| [ ] | 4.2 | 4 | tests/test_brain.py | Sonnet 5 | medium | 1M | test/superfly-tests-ci | test(chunk-4.2): add FlyBrain load/export tests |
+| [ ] | 4.3 | 4 | test_datasources.py + test_cache.py | Sonnet 5 | medium | 1M | test/superfly-tests-ci | test(chunk-4.3): add datasource and cache tests |
+| [ ] | 4.4 | 4 | CI workflow | Haiku 4.5 | n/a | 200K | test/superfly-tests-ci | ci(chunk-4.4): add CI workflow |
 | [ ] | — | 4 | PR: "test: Phase 4 — tests & CI" | — | — | — | test/superfly-tests-ci | — |
-| [ ] | 12 | 5 | docs/SETUP.md | Haiku 4.5 | n/a | 200K | docs/superfly-docs | docs(chunk-12): add CAVE auth setup docs |
-| [ ] | 13 | 5 | README.md update | Haiku 4.5 | n/a | 200K | docs/superfly-docs | docs(chunk-13): update README with install and quickstart |
+| [ ] | 5.1 | 5 | docs/SETUP.md | Haiku 4.5 | n/a | 200K | docs/superfly-docs | docs(chunk-5.1): add CAVE auth setup docs |
+| [ ] | 5.2 | 5 | README.md update | Haiku 4.5 | n/a | 200K | docs/superfly-docs | docs(chunk-5.2): update README with install and quickstart |
 | [ ] | — | 5 | PR: "docs: Phase 5 — docs" | — | — | — | docs/superfly-docs | — |
 
 **Relevant files**
 - `pyproject.toml` — new, project metadata + optional dependency groups.
 - `src/superfly/brain.py` — new, refactored `FlyBrain` (from user's draft class).
-- `src/superfly/datasources/base.py`, `flywire.py`, `mock.py` — new, data-source abstraction.
+- `src/superfly/datasources/base.py`, `flybywire.py`, `mock.py` — new, data-source abstraction.
 - `src/superfly/cache.py` — new, disk cache wrapper.
 - `src/superfly/exceptions.py` — new, custom exception types.
 - `tests/conftest.py`, `tests/test_brain.py`, `tests/test_datasources.py`, `tests/test_cache.py` — new.

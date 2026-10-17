@@ -216,3 +216,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# superfly
+.venv/
+.env
+# CAVE credentials stored in user home (~/.cloudvolume/secrets/cave-secret.json) — never commit

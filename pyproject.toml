@@ -1,0 +1,23 @@
+[project]
+name = "superfly"
+version = "0.1.0"
+description = "Tooling for building graph/tensor views on top of the FlyWire fruit fly connectome."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.0",
+    "numpy>=1.26",
+    "scipy>=1.11",
+]
+
+[project.optional-dependencies]
+flywire = ["fafbseg", "caveclient"]
+torch = ["torch", "torch_geometric"]
+viz = ["networkx"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/superfly"]
