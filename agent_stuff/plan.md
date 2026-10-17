@@ -70,7 +70,7 @@ At the end of each chunk during execution, state: `Next: Chunk N — [brief desc
 | [x] | 4.1 | 4 | tests/conftest.py | Haiku 4.5 | n/a | 200K | test/superfly-tests-ci | test(chunk-4.1): add pytest fixtures for mock brain data |
 | [x] | 4.2 | 4 | tests/test_brain.py | Sonnet 5 | medium | 1M | test/superfly-tests-ci | test(chunk-4.2): add FlyBrain load/export tests |
 | [x] | 4.3 | 4 | test_datasources.py + test_cache.py | Sonnet 5 | medium | 1M | test/superfly-tests-ci | test(chunk-4.3): add datasource and cache tests |
-| [ ] | 4.4 | 4 | CI workflow | Haiku 4.5 | n/a | 200K | test/superfly-tests-ci | ci(chunk-4.4): add CI workflow |
+| [x] | 4.4 | 4 | CI workflow | Haiku 4.5 | n/a | 200K | test/superfly-tests-ci | ci(chunk-4.4): add CI workflow |
 | [ ] | — | 4 | PR: "test: Phase 4 — tests & CI" | — | — | — | test/superfly-tests-ci | — |
 | [ ] | 5.1 | 5 | docs/SETUP.md | Haiku 4.5 | n/a | 200K | docs/superfly-docs | docs(chunk-5.1): add CAVE auth setup docs |
 | [ ] | 5.2 | 5 | README.md update | Haiku 4.5 | n/a | 200K | docs/superfly-docs | docs(chunk-5.2): update README with install and quickstart |

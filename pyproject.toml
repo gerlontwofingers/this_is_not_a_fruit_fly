@@ -15,6 +15,9 @@ flywire = ["fafbseg", "caveclient"]
 torch = ["torch", "torch_geometric"]
 viz = ["networkx"]
 
+[dependency-groups]
+dev = ["pytest>=8"]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
