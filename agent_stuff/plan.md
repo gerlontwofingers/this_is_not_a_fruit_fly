@@ -67,8 +67,8 @@ At the end of each chunk during execution, state: `Next: Chunk N — [brief desc
 | [ ] | — | 2 | PR: "feat: Phase 2 — data source abstraction" | — | — | — | feat/superfly-datasources | — |
 | [x] | 3.1 | 3 | brain.py refactor (core API) | Opus 5 | high | 1M | refactor/superfly-flybrain-core | refactor(chunk-3.1): refactor FlyBrain onto injected DataSource |
 | [ ] | — | 3 | PR: "refactor: Phase 3 — core FlyBrain graph object" | — | — | — | refactor/superfly-flybrain-core | — |
-| [ ] | 4.1 | 4 | tests/conftest.py | Haiku 4.5 | n/a | 200K | test/superfly-tests-ci | test(chunk-4.1): add pytest fixtures for mock brain data |
-| [ ] | 4.2 | 4 | tests/test_brain.py | Sonnet 5 | medium | 1M | test/superfly-tests-ci | test(chunk-4.2): add FlyBrain load/export tests |
+| [x] | 4.1 | 4 | tests/conftest.py | Haiku 4.5 | n/a | 200K | test/superfly-tests-ci | test(chunk-4.1): add pytest fixtures for mock brain data |
+| [x] | 4.2 | 4 | tests/test_brain.py | Sonnet 5 | medium | 1M | test/superfly-tests-ci | test(chunk-4.2): add FlyBrain load/export tests |
 | [ ] | 4.3 | 4 | test_datasources.py + test_cache.py | Sonnet 5 | medium | 1M | test/superfly-tests-ci | test(chunk-4.3): add datasource and cache tests |
 | [ ] | 4.4 | 4 | CI workflow | Haiku 4.5 | n/a | 200K | test/superfly-tests-ci | ci(chunk-4.4): add CI workflow |
 | [ ] | — | 4 | PR: "test: Phase 4 — tests & CI" | — | — | — | test/superfly-tests-ci | — |
