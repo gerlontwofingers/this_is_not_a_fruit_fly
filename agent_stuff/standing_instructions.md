@@ -31,7 +31,10 @@ These are instructions that come from your persistent memory (`/memories/`), lay
     - Key design decisions or tradeoffs worth flagging for review.
     - Validation/testing performed (what was run, what passed, any gotchas discovered).
   - The plan file (and its phase/chunk numbering) remains the agent's own bookkeeping — useful for tracking progress across a multi-step execution, but it should never leak into artifacts meant for other readers (commit messages already carry chunk numbers per the rule above since those are scoped to one PR's immutable history, but PR titles/bodies and the final summary to the user should read as if phases never existed).
-- This is guidance/text output only: never auto-create branches, auto-commit, or auto-open PRs. Actual git actions (branch creation, commits, pushes, PR creation) require explicit user action/confirmation per operational safety rules.
+- **The agent never runs git commit, git push, or any GitHub PR/issue-creation action itself, under any circumstances — including chunk-completion commits — unless the user explicitly directs it to run that specific command in that turn.** This supersedes any earlier "commit per chunk" framing: completing a chunk's file edits does **not** imply permission to commit it. Instead, after finishing a chunk's work, the agent supplies:
+  - The exact `git add` + `git commit -m "..."` command text (for the user to run themselves), with a commit message written to be useful to both human reviewers and LLMs reading the history later (what changed and why, key decisions, validation performed) — not just a terse chunk label.
+  - At phase end, PR title/body text per the format above (no phase/chunk numbers in PR-facing text).
+  - The user alone decides if/when to actually stage, commit, push, or open the PR.
 
 ### Approved model pool (GitHub Copilot, as of September 2026)
 
