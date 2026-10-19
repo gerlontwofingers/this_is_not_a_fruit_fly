@@ -18,9 +18,17 @@ _AUTH_HINT = (
 
 
 class FlyWireDataSource(DataSource):
-    """Live data source backed by FlyWire/FAFB via fafbseg and CAVEclient."""
+    """Live data source backed by FlyWire/FAFB via fafbseg and CAVEclient.
 
-    def __init__(self, dataset: str = "fafb", materialization: int = 783):
+    `dataset` is the CAVE *datastack* name (e.g. "flywire_fafb_public",
+    "flywire_fafb_production") — it must match a datastack your CAVE account
+    actually has `view` permission for, which varies by account. Most
+    external accounts have public dataset access rather than the restricted
+    production datastack. Call `CAVEclient().info.get_datastacks()` to list
+    all valid datastack names if `client` raises an AuthenticationError.
+    """
+
+    def __init__(self, dataset: str = "flywire_fafb_public", materialization: int = 783):
         self.dataset = dataset
         self.materialization = materialization
         self._client = None
@@ -34,7 +42,7 @@ class FlyWireDataSource(DataSource):
             except ImportError as e:
                 raise ImportError(_INSTALL_HINT) from e
             try:
-                client = CAVEclient("flywire_fafb_production")
+                client = CAVEclient(self.dataset)
                 client.materialize.version = self.materialization
             except Exception as e:
                 raise AuthenticationError(_AUTH_HINT) from e

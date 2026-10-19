@@ -69,3 +69,34 @@ ds.client  # raises AuthenticationError with a hint back to this doc on failure
 
 If authentication fails, `FlyWireDataSource` raises `AuthenticationError`
 with a message pointing back to this document.
+
+## 6. If you get a 403 "missing_permission" error
+
+A token that's valid but gets a `403 Client Error: FORBIDDEN ... missing
+permission: view for dataset ...` means your CAVE account doesn't have `view`
+access to the specific *datastack* `FlyWireDataSource` requested — having a
+CAVE account/token and having per-dataset permissions are separate approval
+steps. `FlyWireDataSource` defaults to the `flywire_fafb_public` datastack,
+which is what most external accounts actually have access to; the restricted
+`flywire_fafb_production` datastack requires separate approval and is not
+the default here.
+
+To find the exact valid datastack names (don't guess — they don't always
+match the dataset names shown on the Codex token page), query CAVE's info
+service directly:
+
+```python
+from caveclient import CAVEclient
+
+client = CAVEclient()  # no datastack name needed for this call
+print(client.info.get_datastacks())
+```
+
+Then pass the matching name explicitly if it isn't `flywire_fafb_public`:
+
+```python
+from superfly.datasources.flybywire import FlyWireDataSource
+
+ds = FlyWireDataSource(dataset="flywire_fafb_public")  # or whatever you're granted
+```
+
