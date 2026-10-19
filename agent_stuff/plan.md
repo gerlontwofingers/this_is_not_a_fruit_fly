@@ -96,7 +96,7 @@ At the end of each chunk during execution, state: `Next: Chunk N — [brief desc
 | [x] | 6.3 | 6 | real region/neuropil support (research) | Opus 5 | high | 1M | fix/superfly-real-data-schema | feat(chunk-6.3): add real neuropil-based region support to FlyWireDataSource |
 | [x] | 6.4 | 6 | schema-mapping regression tests | Sonnet 5 | medium | 1M | fix/superfly-real-data-schema | test(chunk-6.4): add schema-mapping regression tests for FlyWireDataSource |
 | [ ] | — | 6 | PR: "fix: correct FlyWireDataSource against the real fafbseg/CAVE API" | — | — | — | fix/superfly-real-data-schema | — |
-| [ ] | 7.1 | 7 | demo.ipynb at repo root | Haiku 4.5 | n/a | 200K | docs/superfly-demo-notebook | docs(chunk-7.1): add demo notebook |
+| [x] | 7.1 | 7 | demo.ipynb at repo root | Haiku 4.5 | n/a | 200K | docs/superfly-demo-notebook | docs(chunk-7.1): add demo notebook |
 | [ ] | — | 7 | PR: "docs: add superfly demo notebook" | — | — | — | docs/superfly-demo-notebook | — |
 
 **Relevant files**
