@@ -10,6 +10,7 @@ dependencies = [
     "scipy>=1.11",
     "caveclient[flywire]>=8.2.1",
     "fafbseg[flywire]>=3.2.2",
+    "ipykernel>=7.4.0",
 ]
 
 [project.optional-dependencies]
