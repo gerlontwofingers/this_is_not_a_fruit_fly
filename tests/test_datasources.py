@@ -8,7 +8,7 @@ import pytest
 from superfly.datasources.base import DataSource
 from superfly.datasources.flybywire import FlyWireDataSource
 from superfly.datasources.mock import MockDataSource
-from superfly.exceptions import AuthenticationError
+from superfly.exceptions import AuthenticationError, RegionNotFoundError
 
 # ---------------------------------------------------------------------------
 # MockDataSource contract
@@ -93,31 +93,37 @@ def test_get_annotations_raises_import_error_when_fafbseg_missing(monkeypatch):
     monkeypatch.setitem(sys.modules, "fafbseg", None)
     ds = FlyWireDataSource()
     with pytest.raises(ImportError, match=r"superfly\[flywire\]"):
+        ds.get_annotations("PN", "cell_type")
+
+
+def test_get_annotations_rejects_unsupported_annotation_type():
+    ds = FlyWireDataSource()
+    with pytest.raises(RegionNotFoundError):
         ds.get_annotations("AL_R", "region")
 
 
 def test_get_annotations_wraps_auth_like_error(monkeypatch):
     _install_fake_caveclient(monkeypatch, _WorkingCaveClient)
 
-    def _raise_auth_error(name, annotation_type=None):
+    def _raise_auth_error(x, verbose=False):
         raise RuntimeError("403 Forbidden: invalid token")
 
     _install_fake_fafbseg(monkeypatch, search_annotations=_raise_auth_error)
     ds = FlyWireDataSource()
     with pytest.raises(AuthenticationError):
-        ds.get_annotations("AL_R", "region")
+        ds.get_annotations("PN", "cell_type")
 
 
 def test_get_annotations_reraises_non_auth_error(monkeypatch):
     _install_fake_caveclient(monkeypatch, _WorkingCaveClient)
 
-    def _raise_other_error(name, annotation_type=None):
+    def _raise_other_error(x, verbose=False):
         raise RuntimeError("materialization version not found")
 
     _install_fake_fafbseg(monkeypatch, search_annotations=_raise_other_error)
     ds = FlyWireDataSource()
     with pytest.raises(RuntimeError, match="materialization version not found"):
-        ds.get_annotations("AL_R", "region")
+        ds.get_annotations("PN", "cell_type")
 
 
 def test_get_adjacency_wraps_auth_like_error(monkeypatch):

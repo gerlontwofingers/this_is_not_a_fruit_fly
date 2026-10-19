@@ -49,7 +49,23 @@ Branch: `docs/superfly-docs`
 - Chunk 5.2: update root `README.md` — project description, install instructions (`pip install -e ".[flywire,torch,viz]"`), quickstart using `MockDataSource` for offline exploration. — recommended: Claude Haiku 4.5 — effort: n/a — context: 200K — branch: `docs/superfly-docs` — commit: `docs(chunk-5.2): update README with install and quickstart`
 - PR (end of Phase 5): Title: `docs: Phase 5 — docs`. Body: summarizes Chunks 5.1–5.2 — adds `docs/SETUP.md` for CAVE/FlyWire token setup and updates the root `README.md` with install instructions and an offline `MockDataSource` quickstart. Depends on Phase 3; can merge in parallel with Phase 4.
 
-At the end of each chunk during execution, state: `Next: Chunk N — [brief description] — recommended: [model] — effort: [level] — context: [context window] — branch: [branch name] — commit: "[commit message]"`. After Chunk 5.2: `All chunks complete.`
+Phase 6 — Real-data schema compatibility fixes (*found via live testing against a real CAVE account after Phase 5*)
+Branch: `fix/superfly-real-data-schema`
+
+Context: manual real-data testing (chunk 5.1 setup, verified working auth against the `flywire_fafb_public` datastack) surfaced that `FlyWireDataSource.get_annotations()` is fundamentally broken against the real API — it calls `fafbseg.flywire.search_annotations(name, annotation_type=annotation_type)`, but the installed `fafbseg`'s `search_annotations()` takes no `annotation_type` kwarg at all (it's a free-text/regex search across all annotation columns combined). Pulling the real hierarchical annotation table (139,248 neurons) also revealed a schema mismatch against `MockDataSource`'s fixture: real columns are `cell_type` (matches), `super_class` (mock uses `superclass` — underscore mismatch), and there is **no `region` column at all** (region/neuropil assignment isn't part of this hierarchical annotation table in the real schema — `load_region()` currently has no real-data equivalent).
+
+- Chunk 6.1: Fix `superfly/datasources/flybywire.py` `get_annotations()` — stop passing the invalid `annotation_type` kwarg to `search_annotations()`; fetch the full/unfiltered annotation table and filter client-side by column, via an internal canonical-name → real-column-name map (`"cell_type": "cell_type"`, `"superclass": "super_class"`). For `annotation_type="region"`, raise a clear, explicit error (not a silent KeyError) explaining region-based loading isn't supported against real data yet, pointing to `MockDataSource` or `load_cell_type`/`load_superclass` as working alternatives in the meantime. — recommended: Claude Sonnet 5 — effort: medium — context: 1M — branch: `fix/superfly-real-data-schema` — commit: `fix(chunk-6.1): correct FlyWireDataSource.get_annotations for real fafbseg API`
+- Chunk 6.2: Validate `get_adjacency()` the same way against the real API (only `get_annotations()` has been live-tested so far) — confirm `flywire.get_adjacency()`'s actual signature/kwargs match what's called, fix any further drift found. Add a small manual real-data smoke-test script (e.g. `scripts/smoke_test_real_data.py`, not part of the offline pytest suite since it needs live CAVE auth) exercising `get_annotations`/`get_adjacency`/a full `FlyBrain.load_cell_type(...)` round trip, to catch this class of bug earlier next time. — recommended: Claude Sonnet 5 — effort: medium — context: 1M — branch: `fix/superfly-real-data-schema` — commit: `fix(chunk-6.2): validate and fix FlyWireDataSource.get_adjacency against real API`
+- Chunk 6.3 (exploratory/research): Investigate the correct real API for per-neuron region/neuropil assignment (likely synapse-level neuropil data via CAVE materialized tables, aggregated to a per-neuron "primary region" — e.g. the neuropil with the most synapses for that neuron) and implement real `load_region()` support if a clean path exists; document the aggregation method and any caveats/approximations in `docs/SETUP.md`. If no clean path is found, document that explicitly as a known limitation instead of a bug. — recommended: Claude Opus 5 — effort: high — context: 1M — branch: `fix/superfly-real-data-schema` — commit: `feat(chunk-6.3): add real neuropil-based region support to FlyWireDataSource` (or `docs(chunk-6.3): document load_region real-data limitation` if no implementation lands)
+- Chunk 6.4: Add regression tests for the schema-mapping layer from 6.1 — a monkeypatched fake `fafbseg.flywire` module returning real-shaped columns (`cell_type`, `super_class`, no `region`) to assert `FlyWireDataSource` translates/filters correctly and raises the expected clear error for `region`. Keeps this bug class caught offline in CI going forward, without needing live CAVE auth. — recommended: Claude Sonnet 5 — effort: medium — context: 1M — branch: `fix/superfly-real-data-schema` — commit: `test(chunk-6.4): add schema-mapping regression tests for FlyWireDataSource`
+- PR (end of Phase 6): Title: `fix: correct FlyWireDataSource against the real fafbseg/CAVE API`. Body: summarizes Chunks 6.1–6.4 — fixes the broken `get_annotations()` call signature, validates/fixes `get_adjacency()` against the real API, adds (or documents the absence of) real region/neuropil support, and adds offline regression tests for the schema-mapping layer. Depends on Phase 3; informed by live real-data testing done during Phase 5/6.
+
+Phase 7 — Demo notebook (*depends on Phase 6 for an honest real-data story; mock-only parts could ship earlier*)
+Branch: `docs/superfly-demo-notebook`
+- Chunk 7.1: `demo.ipynb` at repo root — Part 1: offline `MockDataSource` walkthrough (load by region/cell_type/superclass, `to_numpy`/`to_networkx` exports, `mask()` demo). Part 2: real FlyWire walkthrough using `FlyWireDataSource` (`load_cell_type`/`load_superclass`, noting `load_region`'s real-data status per Phase 6), plus a disk-cache timing demo (first call slow, cached call fast). All real-data cells wrapped so the notebook still runs top-to-bottom for someone without CAVE auth configured (clear markdown callouts, not silent failures). — recommended: Claude Haiku 4.5 — effort: n/a — context: 200K — branch: `docs/superfly-demo-notebook` — commit: `docs(chunk-7.1): add demo notebook`
+- PR (end of Phase 7): Title: `docs: add superfly demo notebook`. Body: summarizes Chunk 7.1 — adds a root-level `demo.ipynb` walking through offline mock usage, real FlyWire data usage, and disk-cache behavior. Depends on Phase 6 for accurate real-data behavior.
+
+At the end of each chunk during execution, state: `Next: Chunk N — [brief description] — recommended: [model] — effort: [level] — context: [context window] — branch: [branch name] — commit: "[commit message]"`. After Chunk 7.1: `All chunks complete.`
 
 **Chunk numbering note**: chunks 1 and 2 (Phase 1) keep their original flat numbers because they're already committed/merged — commit messages are immutable history. Chunk 2.1 onward uses dotted `{phase}.{local-chunk}` numbering (resets per phase) per the updated standing instructions.
 
@@ -75,6 +91,13 @@ At the end of each chunk during execution, state: `Next: Chunk N — [brief desc
 | [x] | 5.1 | 5 | docs/SETUP.md | Haiku 4.5 | n/a | 200K | docs/superfly-docs | docs(chunk-5.1): add CAVE auth setup docs |
 | [x] | 5.2 | 5 | README.md update | Haiku 4.5 | n/a | 200K | docs/superfly-docs | docs(chunk-5.2): update README with install and quickstart |
 | [ ] | — | 5 | PR: "docs: Phase 5 — docs" | — | — | — | docs/superfly-docs | — |
+| [x] | 6.1 | 6 | fix get_annotations() real API call | Sonnet 5 | medium | 1M | fix/superfly-real-data-schema | fix(chunk-6.1): correct FlyWireDataSource.get_annotations for real fafbseg API |
+| [ ] | 6.2 | 6 | validate/fix get_adjacency() + smoke test script | Sonnet 5 | medium | 1M | fix/superfly-real-data-schema | fix(chunk-6.2): validate and fix FlyWireDataSource.get_adjacency against real API |
+| [ ] | 6.3 | 6 | real region/neuropil support (research) | Opus 5 | high | 1M | fix/superfly-real-data-schema | feat(chunk-6.3): add real neuropil-based region support to FlyWireDataSource |
+| [ ] | 6.4 | 6 | schema-mapping regression tests | Sonnet 5 | medium | 1M | fix/superfly-real-data-schema | test(chunk-6.4): add schema-mapping regression tests for FlyWireDataSource |
+| [ ] | — | 6 | PR: "fix: correct FlyWireDataSource against the real fafbseg/CAVE API" | — | — | — | fix/superfly-real-data-schema | — |
+| [ ] | 7.1 | 7 | demo.ipynb at repo root | Haiku 4.5 | n/a | 200K | docs/superfly-demo-notebook | docs(chunk-7.1): add demo notebook |
+| [ ] | — | 7 | PR: "docs: add superfly demo notebook" | — | — | — | docs/superfly-demo-notebook | — |
 
 **Relevant files**
 - `pyproject.toml` — new, project metadata + optional dependency groups.
@@ -85,6 +108,9 @@ At the end of each chunk during execution, state: `Next: Chunk N — [brief desc
 - `tests/conftest.py`, `tests/test_brain.py`, `tests/test_datasources.py`, `tests/test_cache.py` — new.
 - `.github/workflows/ci.yml` — new.
 - `docs/SETUP.md`, `README.md` — new/updated.
+- `src/superfly/datasources/flybywire.py` — fix (Phase 6): correct real API usage, schema mapping, region support/limitation.
+- `scripts/smoke_test_real_data.py` — new (Phase 6): manual live-auth smoke test, not part of pytest.
+- `demo.ipynb` — new (Phase 7): root-level demo notebook, mock + real data.
 
 **Verification**
 1. `uv run pytest -v` passes fully offline (no network calls) using `MockDataSource` fixtures.
