@@ -95,16 +95,21 @@ class FlyWireDataSource(DataSource):
             raise ImportError(_INSTALL_HINT) from e
         self.client  # ensure auth happens before querying
         try:
-            return flywire.get_adjacency(
+            # get_adjacency() has no min_synapses filter of its own (it has
+            # min_score, a synapse-confidence threshold -- a different
+            # concept) and returns source/target/weight columns, not our
+            # pre/post/syn_count contract. Rename and filter client-side.
+            adj = flywire.get_adjacency(
                 sources=neuron_ids,
                 targets=neuron_ids,
-                min_synapses=min_synapses,
                 square=False,
             )
         except Exception as e:
             if self._looks_like_auth_error(e):
                 raise AuthenticationError(_AUTH_HINT) from e
             raise
+        adj = adj.rename(columns={"source": "pre", "target": "post", "weight": "syn_count"})
+        return adj[adj["syn_count"] >= min_synapses].reset_index(drop=True)
 
     @staticmethod
     def _looks_like_auth_error(error: Exception) -> bool:

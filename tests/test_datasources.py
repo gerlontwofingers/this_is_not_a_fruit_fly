@@ -129,7 +129,7 @@ def test_get_annotations_reraises_non_auth_error(monkeypatch):
 def test_get_adjacency_wraps_auth_like_error(monkeypatch):
     _install_fake_caveclient(monkeypatch, _WorkingCaveClient)
 
-    def _raise_auth_error(sources, targets, min_synapses, square):
+    def _raise_auth_error(sources, targets, square):
         raise RuntimeError("401 unauthorized")
 
     _install_fake_fafbseg(monkeypatch, get_adjacency=_raise_auth_error)
