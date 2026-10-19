@@ -173,6 +173,61 @@ def test_get_annotations_reraises_non_auth_error(monkeypatch):
         ds.get_annotations("PN", "cell_type")
 
 
+# ---------------------------------------------------------------------------
+# Schema-mapping regressions: FlyWireDataSource must translate canonical
+# annotation_type names ("cell_type", "superclass") to the real fafbseg
+# column names ("cell_type", "super_class") and the real get_adjacency
+# column names (source/target/weight) to our pre/post/syn_count contract.
+# These use fake tables shaped exactly like the real schema (confirmed via
+# live inspection), so a future fafbseg schema/signature change is caught
+# here offline rather than only live in scripts/smoke_test_real_data.py.
+# ---------------------------------------------------------------------------
+
+
+def test_get_annotations_maps_canonical_names_to_real_columns(monkeypatch):
+    _install_fake_caveclient(monkeypatch, _WorkingCaveClient)
+    real_shaped_table = pd.DataFrame(
+        {
+            "root_id": [1, 2, 3],
+            "cell_type": ["PN", "LN", "PN"],
+            "super_class": ["central", "sensory", "central"],
+        }
+    )
+    _install_fake_fafbseg(
+        monkeypatch, search_annotations=lambda x, verbose=False: real_shaped_table
+    )
+    ds = FlyWireDataSource()
+
+    by_cell_type = ds.get_annotations("PN", "cell_type")
+    assert set(by_cell_type["root_id"]) == {1, 3}
+
+    # "superclass" (our canonical name) must map to the real "super_class" column.
+    by_superclass = ds.get_annotations("sensory", "superclass")
+    assert set(by_superclass["root_id"]) == {2}
+
+
+def test_get_adjacency_renames_columns_and_filters_min_synapses(monkeypatch):
+    _install_fake_caveclient(monkeypatch, _WorkingCaveClient)
+
+    def _fake_get_adjacency(sources, targets, square):
+        assert square is False  # we rely on long-form, not a pivoted matrix
+        return pd.DataFrame(
+            {
+                "source": [111, 111, 222],
+                "target": [222, 333, 333],
+                "weight": [10, 2, 7],
+            }
+        )
+
+    _install_fake_fafbseg(monkeypatch, get_adjacency=_fake_get_adjacency)
+    ds = FlyWireDataSource()
+
+    result = ds.get_adjacency([111, 222, 333], min_synapses=5)
+    assert list(result.columns) == ["pre", "post", "syn_count"]
+    assert set(zip(result["pre"], result["post"])) == {(111, 222), (222, 333)}
+    assert (result["syn_count"] >= 5).all()
+
+
 def test_get_adjacency_wraps_auth_like_error(monkeypatch):
     _install_fake_caveclient(monkeypatch, _WorkingCaveClient)
 
