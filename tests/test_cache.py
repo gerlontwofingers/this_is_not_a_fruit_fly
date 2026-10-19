@@ -85,9 +85,9 @@ def test_cached_flywire_datasource_caches_across_instances(tmp_path, monkeypatch
     monkeypatch.setattr(cache_module, "CACHE_DIR", tmp_path)
     calls = []
 
-    def _fake_search_annotations(name, annotation_type=None):
-        calls.append(name)
-        return pd.DataFrame({"root_id": [1, 2]})
+    def _fake_search_annotations(x, verbose=False):
+        calls.append(x)
+        return pd.DataFrame({"root_id": [1, 2], "cell_type": ["PN", "LN"]})
 
     fake_flywire = types.ModuleType("fafbseg.flywire")
     fake_flywire.search_annotations = _fake_search_annotations
@@ -105,6 +105,6 @@ def test_cached_flywire_datasource_caches_across_instances(tmp_path, monkeypatch
     monkeypatch.setitem(sys.modules, "caveclient", fake_caveclient)
 
     # Two separate instances with matching dataset/materialization share a cache key.
-    CachedFlyWireDataSource().get_annotations("AL_R", "region")
-    CachedFlyWireDataSource().get_annotations("AL_R", "region")
-    assert calls == ["AL_R"]
+    CachedFlyWireDataSource().get_annotations("PN", "cell_type")
+    CachedFlyWireDataSource().get_annotations("PN", "cell_type")
+    assert calls == [None]  # search_annotations(None) only invoked once (cache hit on 2nd)
