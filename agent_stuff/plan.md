@@ -93,7 +93,7 @@ At the end of each chunk during execution, state: `Next: Chunk N — [brief desc
 | [ ] | — | 5 | PR: "docs: Phase 5 — docs" | — | — | — | docs/superfly-docs | — |
 | [x] | 6.1 | 6 | fix get_annotations() real API call | Sonnet 5 | medium | 1M | fix/superfly-real-data-schema | fix(chunk-6.1): correct FlyWireDataSource.get_annotations for real fafbseg API |
 | [x] | 6.2 | 6 | validate/fix get_adjacency() + smoke test script | Sonnet 5 | medium | 1M | fix/superfly-real-data-schema | fix(chunk-6.2): validate and fix FlyWireDataSource.get_adjacency against real API |
-| [ ] | 6.3 | 6 | real region/neuropil support (research) | Opus 5 | high | 1M | fix/superfly-real-data-schema | feat(chunk-6.3): add real neuropil-based region support to FlyWireDataSource |
+| [x] | 6.3 | 6 | real region/neuropil support (research) | Opus 5 | high | 1M | fix/superfly-real-data-schema | feat(chunk-6.3): add real neuropil-based region support to FlyWireDataSource |
 | [ ] | 6.4 | 6 | schema-mapping regression tests | Sonnet 5 | medium | 1M | fix/superfly-real-data-schema | test(chunk-6.4): add schema-mapping regression tests for FlyWireDataSource |
 | [ ] | — | 6 | PR: "fix: correct FlyWireDataSource against the real fafbseg/CAVE API" | — | — | — | fix/superfly-real-data-schema | — |
 | [ ] | 7.1 | 7 | demo.ipynb at repo root | Haiku 4.5 | n/a | 200K | docs/superfly-demo-notebook | docs(chunk-7.1): add demo notebook |

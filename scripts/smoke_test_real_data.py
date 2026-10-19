@@ -43,9 +43,19 @@ def main() -> int:
     assert not superclass.empty
     print(f"OK: {len(superclass)} rows in {time.time() - t0:.1f}s")
 
-    _step("get_annotations(region) raises RegionNotFoundError")
+    _step("get_annotations(region) via neuropil synapse data")
+    t0 = time.time()
+    region = ds.get_annotations("AL_R", "region")
+    assert not region.empty
+    # The antennal lobe is the primary olfactory center, so it should be
+    # dominated by sensory (olfactory receptor) neurons.
+    top_class = region["super_class"].value_counts().idxmax()
+    print(f"OK: {len(region)} neurons in AL_R in {time.time() - t0:.1f}s")
+    print(f"    dominant super_class={top_class!r} (expected 'sensory')")
+
+    _step("get_annotations(region) raises on an unknown neuropil")
     try:
-        ds.get_annotations("AL_R", "region")
+        ds.get_annotations("NOT_A_NEUROPIL", "region")
         print("FAIL: expected RegionNotFoundError, none raised")
         return 1
     except RegionNotFoundError:

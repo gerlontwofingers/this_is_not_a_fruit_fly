@@ -100,3 +100,46 @@ from superfly.datasources.flybywire import FlyWireDataSource
 ds = FlyWireDataSource(dataset="flywire_fafb_public")  # or whatever you're granted
 ```
 
+## 7. How region lookups work (and their caveats)
+
+Unlike `cell_type` and `superclass`, which come straight from columns in the
+hierarchical annotation table, **the annotation table has no region column
+at all**. `load_region()` is instead derived from synapse-to-neuropil data:
+
+1. Query the `valid_synapses_nt_np_v6` CAVE view for synapses whose assigned
+   `neuropil` matches the requested region.
+2. Count how many of those synapses each neuron participates in (as either
+   the pre- or post-synaptic partner).
+3. Keep neurons with at least `region_min_synapses` (default 5).
+4. Join against the annotation table, which drops unproofread fragments —
+   these make up a large share of raw synapse endpoints.
+
+**This is approximate.** Large neuropils contain far more synapses than the
+sampled `region_synapse_limit` (default 50,000), so the result is a *subset*
+of the region's neurons, biased toward densely-connected ones. Both knobs are
+tunable:
+
+```python
+ds = FlyWireDataSource(
+    region_synapse_limit=200_000,  # better coverage, much slower
+    region_min_synapses=20,        # stricter "is really in this region"
+)
+```
+
+As a sanity check, `load_region("AL_R")` (the right antennal lobe, the fly's
+primary olfactory center) returns a set dominated by `sensory` super-class
+neurons with `ORN_*` (olfactory receptor neuron) cell types — biologically
+what you'd expect.
+
+Region names are **exact, case-sensitive CAVE neuropil names**, usually with
+a side suffix: `AL_R`, `AL_L`, `MB_CA_R`, `LH_R`, `PLP_L`, plus unpaired
+midline ones like `EB`, `FB`, `PB`, `GNG`. An unrecognized name raises
+`RegionNotFoundError`. To list the valid names:
+
+```python
+from caveclient import CAVEclient
+
+client = CAVEclient("flywire_fafb_public")
+print(client.materialize.get_table_metadata("fly_synapses_neuropil_v6")["description"])
+```
+

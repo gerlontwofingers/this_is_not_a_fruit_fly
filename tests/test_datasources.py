@@ -3,6 +3,7 @@
 import sys
 import types
 
+import pandas as pd
 import pytest
 
 from superfly.datasources.base import DataSource
@@ -96,10 +97,56 @@ def test_get_annotations_raises_import_error_when_fafbseg_missing(monkeypatch):
         ds.get_annotations("PN", "cell_type")
 
 
-def test_get_annotations_rejects_unsupported_annotation_type():
+def test_get_annotations_rejects_unknown_annotation_type():
     ds = FlyWireDataSource()
-    with pytest.raises(RegionNotFoundError):
-        ds.get_annotations("AL_R", "region")
+    with pytest.raises(ValueError, match="Unsupported annotation_type"):
+        ds.get_annotations("whatever", "not_a_real_type")
+
+
+def test_get_region_annotations_raises_when_neuropil_has_no_synapses(monkeypatch):
+    class _CaveClientWithEmptyView:
+        def __init__(self, dataset):
+            self.materialize = types.SimpleNamespace(
+                version=None,
+                query_view=lambda *a, **kw: pd.DataFrame(
+                    columns=["pre_pt_root_id", "post_pt_root_id", "neuropil"]
+                ),
+            )
+
+    _install_fake_caveclient(monkeypatch, _CaveClientWithEmptyView)
+    ds = FlyWireDataSource()
+    with pytest.raises(RegionNotFoundError, match="No synapses found in neuropil"):
+        ds.get_annotations("NOT_A_NEUROPIL", "region")
+
+
+def test_get_region_annotations_filters_and_joins_to_annotation_table(monkeypatch):
+    synapses = pd.DataFrame(
+        {
+            # 111 appears 3x, 222 appears 3x, 333 only once (below threshold).
+            "pre_pt_root_id": [111, 111, 111, 999, 999, 999],
+            "post_pt_root_id": [222, 222, 222, 333, 222, 111],
+            "neuropil": ["AL_R"] * 6,
+        }
+    )
+
+    class _CaveClientWithSynapses:
+        def __init__(self, dataset):
+            self.materialize = types.SimpleNamespace(
+                version=None, query_view=lambda *a, **kw: synapses
+            )
+
+    _install_fake_caveclient(monkeypatch, _CaveClientWithSynapses)
+    # 999 is deliberately absent from the annotation table (unproofread fragment).
+    annotations = pd.DataFrame(
+        {"root_id": [111, 222, 333], "cell_type": ["PN", "LN", "KC"]}
+    )
+    _install_fake_fafbseg(
+        monkeypatch, search_annotations=lambda x, verbose=False: annotations
+    )
+
+    ds = FlyWireDataSource(region_min_synapses=3)
+    result = ds.get_annotations("AL_R", "region")
+    assert set(result["root_id"]) == {111, 222}  # 333 below threshold, 999 unannotated
 
 
 def test_get_annotations_wraps_auth_like_error(monkeypatch):
